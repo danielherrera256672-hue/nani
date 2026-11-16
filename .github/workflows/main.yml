@@ -1,0 +1,57 @@
+
+name: Generar APK Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Extraer proyecto Android
+        run: unzip -q Analizador_Vivo_APK_Compilacion_En_Nube.zip -d proyecto
+
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Android 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configurar Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Probar calculos
+        working-directory: proyecto
+        run: |
+          mkdir -p build-tests
+          javac -encoding UTF-8 -d build-tests \
+            app/src/main/java/com/local/ofertas/ProfitEngine.java \
+            app/src/main/java/com/local/ofertas/OfferParser.java \
+            tests/FinancialTest.java
+          java -cp build-tests FinancialTest
+
+      - name: Compilar APK
+        working-directory: proyecto
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Publicar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Analizador-Vivo-APK
+          path: proyecto/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
