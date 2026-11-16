@@ -1,3 +1,20 @@
-plugins {
-    id 'com.android.application' version '8.6.1' apply false
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.local.ofertas'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.local.ofertas'
+        minSdk 26
+        targetSdk 34
+        versionCode 5
+        versionName '4.1-vivo-17000km'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies {
+    // Modelo de reconocimiento de texto integrado en la APK: funciona sin internet.
+    implementation 'com.google.mlkit:text-recognition:16.0.1'
 }
